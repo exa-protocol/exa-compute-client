@@ -7,7 +7,7 @@ const os = require('os');
 const isInstalled = require('is-program-installed');
 const fs = require('fs');
 const { execSync } = require('child_process');
-const { join } = require('path');
+const { path } = require('path');
 const { default: axios } = require('axios');
 
 const timeOut = 500;
