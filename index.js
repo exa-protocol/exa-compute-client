@@ -76,8 +76,8 @@ async function main() {
 
     p.intro('Setting your secret token');
     s.start('Setting')
-    execSync(`echo 'export EXA_COMPUTE_TOKEN=${value}' >> ~/.bash_profile`);
-    execSync('. ~/.bash_profile');
+    execSync(`echo 'export EXA_COMPUTE_TOKEN=${value}' >> ~/.bashrc`);
+    execSync('. ~/.bashrc');
     s.stop();
     p.outro('Secret token has been successfully setup');
 
