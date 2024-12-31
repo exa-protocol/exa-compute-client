@@ -18,6 +18,15 @@ const startServiceCommand = 'sudo systemctl start exa-compute-client';
 const enableServiceRunOnRestartCommand = 'sudo systemctl enable exa-compute-client';
 const exaComputeBackendUrl = 'https://exa-compute-backend.exa.show/'
 
+// Access the file bundled with the pkg executable
+const servicePath = process.pkg ?
+  path.join(process.pkg.resource('assets'), 'exa-compute-client.service') : 
+  './exa-compute-client.service';
+ 
+const clientExecutablePath = process.pkg ?
+  path.join(process.pkg.resource('assets'), 'client-service-linux') : 
+  './client-service-linux';
+
 async function main() {
 
     p.intro(`${color.bgMagenta(color.black(' Welcome to the exa drive client. It will take couple of minutes to complete the process'))}`);
@@ -105,8 +114,8 @@ async function main() {
         await setTimeout(timeOut);
     }
 
-    execSync('sudo cp ./client-service-linux /usr/local/bin/client-service-linux');
-	execSync('sudo cp exa-compute-client.service ' + exaComputeServiceDeliverPath);
+    execSync('sudo cp ' + clientExecutablePath + ' /usr/local/bin/client-service-linux');
+	execSync('sudo cp ' + servicePath + ' ' + exaComputeServiceDeliverPath);
 
     s.message('Exa compute Service added');
     await setTimeout(timeOut);
