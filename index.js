@@ -7,7 +7,7 @@ const os = require('os');
 const isInstalled = require('is-program-installed');
 const fs = require('fs');
 const { execSync } = require('child_process');
-const path = require('path');
+const { join } = require('path');
 const { default: axios } = require('axios');
 
 const timeOut = 500;
@@ -19,12 +19,10 @@ const enableServiceRunOnRestartCommand = 'sudo systemctl enable exa-compute-clie
 const exaComputeBackendUrl = 'https://exa-compute-backend.exa.show/'
 
 // Access the file bundled with the pkg executable
-const servicePath = process.pkg ?
-  path.join(process.pkg.resource('assets'), 'exa-compute-client.service') : 
+const servicePath = 
   './exa-compute-client.service';
  
-const clientExecutablePath = process.pkg ?
-  path.join(process.pkg.resource('assets'), 'client-service-linux') : 
+const clientExecutablePath = 
   './client-service-linux';
 
 async function main() {
