@@ -1,0 +1,13 @@
+    [Unit]
+    Description=Runs script every 1 minutes
+    After=network-online.target
+    Requires=network-online.target 
+    Documentation=This is exa compute client
+
+    [Service]
+    Type=simple
+    Restart=always
+    RestartSec=1800
+    User=root
+    WorkingDirectory=/usr/local/bin
+    ExecStart=client-service-linux
