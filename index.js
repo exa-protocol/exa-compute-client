@@ -26,7 +26,12 @@ const clientExecutablePath =
   './client-service-linux';
 
 async function main() {
-
+    console.log(` _____                ____                _                        _ `);
+    console.log(`| ____|__  __  __ _  |  _ \\  _ __   ___  | |_   ___    ___   ___  | |`);
+    console.log(`|  _|  \\ \\/ / / _\` | | |_) || '__| / _ \\ | __| / _ \\  / __| / _ \\ | |`);
+    console.log(`| |___  >  < | (_| | |  __/ | |   | (_) || |_ | (_) || (__ | (_) || |`);
+    console.log(`|_____|/_/\\_\\ \\__,_| |_|    |_|    \\___/  \\__| \\___/  \\___| \\___/ |_|`);
+    console.log(`\n`);
     p.intro(`${color.bgMagenta(color.black(' Welcome to the exa drive client. It will take couple of minutes to complete the process'))}`);
     const s = p.spinner();
     const log = p.log;
