@@ -9,5 +9,6 @@
     Restart=always
     RestartSec=1800
     User=root
+    EnvironmentFile=/etc/exa.env
     WorkingDirectory=/usr/local/bin
     ExecStart=client-service-linux

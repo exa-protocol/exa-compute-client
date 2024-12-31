@@ -76,8 +76,9 @@ async function main() {
 
     p.intro('Setting your secret token');
     s.start('Setting')
-    execSync(`echo 'export EXA_COMPUTE_TOKEN=${value}' >> ~/.bashrc`);
-    execSync('. ~/.bashrc');
+    execSync('sudo rm /etc/exa/env');
+    execSync(`echo 'EXA_COMPUTE_TOKEN=${value}' >> /etc/exa.env`);
+    // execSync('. ~/.bashrc');
     s.stop();
     p.outro('Secret token has been successfully setup');
 
