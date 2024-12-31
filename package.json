@@ -33,7 +33,7 @@
     "scripts": [
       "index.js"
     ],
-    "targers": [
+    "targets": [
       "node18-linux-x64"
     ]
   },
