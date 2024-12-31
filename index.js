@@ -76,7 +76,9 @@ async function main() {
 
     p.intro('Setting your secret token');
     s.start('Setting')
-    execSync('sudo rm /etc/exa/env');
+    if (fs.existsSync('/etc/exa.env')) {
+        execSync('sudo rm /etc/exa.env');
+    }
     execSync(`echo 'EXA_COMPUTE_TOKEN=${value}' >> /etc/exa.env`);
     // execSync('. ~/.bashrc');
     s.stop();
