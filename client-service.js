@@ -12,4 +12,5 @@ cron.schedule('*/10 * * * * *', async () => {
 	let res = await axios.post(exaComputeBackendUrl + 'deviceDetails',  devicedetailJson, {
       headers: { 'Authorization': `Bearer ${exaComputeToken}` }
   });
+  console.log(res);
 });
