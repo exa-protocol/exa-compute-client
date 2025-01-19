@@ -18,7 +18,7 @@ const machineId = execSync("cat /etc/machine-id");
 const headers = { 
   'Authorization': `Bearer ${exaComputeToken}`,
   machineId: machineId,
-  clientVersion: version
+  clientVersion: clientVersion
 }
 
 console.log("headers ", headers);
