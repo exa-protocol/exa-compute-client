@@ -14,7 +14,7 @@ const exaComputeToken = "exacompute.J9FO888LWYS2QNN5ADI24X6A8GJ2WV1LPERVI35J86JW
 console.log("Getting all Env Variables ", process.env);
 console.log("Exacompute Token ", exaComputeToken);
 
-const machineId = execSync("cat /etc/machine-id");
+const machineId = execSync("cat /etc/machine-id").replace(/^\s+|\s+$/g, '');
 const headers = { 
   'Authorization': `Bearer ${exaComputeToken}`,
   'machineId': `${machineId}`,
