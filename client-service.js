@@ -17,7 +17,7 @@ console.log("Exacompute Token ", exaComputeToken);
 const machineId = execSync("cat /etc/machine-id").replace(/^\s+|\s+$/g, '');
 const headers = { 
   'Authorization': `Bearer ${exaComputeToken}`,
-  'machineId': `${machineId}`,
+  'machineId': `${machineId.toString().trim()}`,
   'clientVersion': `${clientVersion}`
 }
 
