@@ -21,63 +21,69 @@ const headers = {
   clientVersion: version
 }
 
+console.log("headers ", headers);
+
 // Update client Version On the server
-await axios.post(exaComputeBackendUrl + 'machine/updateClient',  { clientVersion }, {
+axios.post(exaComputeBackendUrl + 'machine/updateClient',  { clientVersion }, {
   headers: headers
-});
-// Client Version Updated Successfully
+}).then(response => {
+  // Client Version Updated Successfully
+  console.log("Client Version Updated successfully ", response);
 
+  // Send Device Details To server
+  console.log("Running lshw to get the device details");
+  const devicedetailJson = JSON.parse(execSync('sudo lshw -json').toString());
+  console.log("Fetched details successfully", devicedetailJson);
 
-// Send Device Details To server
-console.log("Running lshw to get the device details");
-const devicedetailJson = JSON.parse(execSync('sudo lshw -json').toString());
-console.log("Fetched details successfully", devicedetailJson);
-
-await axios.post(exaComputeBackendUrl + 'deviceDetails',  devicedetailJson, {
-    headers: headers
-});
-
-console.log("Device details successfully sent to server");
-
-
-// Update SysInfo every Minutes
+  axios.post(exaComputeBackendUrl + 'deviceDetails',  devicedetailJson, {
+      headers: headers
+  }).then(response => {
+    console.log("Device details successfully sent to server ", response);
+    // Update SysInfo every Minutes
 cron.schedule('* * * * *', async () => {
 
-console.log("Running cron every minute");
-
-try {
-  const cpuUsage = execSync(`
-    CPU_IDLE=$(top -bn1 | grep "Cpu(s)" | awk -F'[, ]+' '{print $8}')
-    CPU_USED=$(echo "scale=2; 100 - $CPU_IDLE" | bc)
-    echo $CPU_USED
-  `).toString().trim();
-
-  const memoryUsage = execSync(`
-    free -m | awk 'NR==2{printf "{\\"total\\": \\"%s\\", \\"used\\": \\"%s\\", \\"free\\": \\"%s\\"}", $2, $3, $4}'
-  `).toString().trim();
+  console.log("Running cron every minute");
   
-  const diskUsage = execSync(`
-    df -h --output=source,size,used,avail,pcent,target | tail -n +2 |
-    awk 'BEGIN {print "["} {printf "{\\"filesystem\\": \\"%s\\", \\"size\\": \\"%s\\", \\"used\\": \\"%s\\", \\"available\\": \\"%s\\", \\"used_percent\\": \\"%s\\", \\"mount\\": \\"%s\\"},", $1, $2, $3, $4, $5, $6} END {print "]"}' |
-    sed 's/,]/]/'
-  `).toString();
-
-  systemInfoJson = {
-    "cpu": {
-      "used_percent": cpuUsage,
-    },
-    "memory": JSON.parse(memoryUsage),
-    "storage": JSON.parse(diskUsage),
+  try {
+    const cpuUsage = execSync(`
+      CPU_IDLE=$(top -bn1 | grep "Cpu(s)" | awk -F'[, ]+' '{print $8}')
+      CPU_USED=$(echo "scale=2; 100 - $CPU_IDLE" | bc)
+      echo $CPU_USED
+    `).toString().trim();
+  
+    const memoryUsage = execSync(`
+      free -m | awk 'NR==2{printf "{\\"total\\": \\"%s\\", \\"used\\": \\"%s\\", \\"free\\": \\"%s\\"}", $2, $3, $4}'
+    `).toString().trim();
+    
+    const diskUsage = execSync(`
+      df -h --output=source,size,used,avail,pcent,target | tail -n +2 |
+      awk 'BEGIN {print "["} {printf "{\\"filesystem\\": \\"%s\\", \\"size\\": \\"%s\\", \\"used\\": \\"%s\\", \\"available\\": \\"%s\\", \\"used_percent\\": \\"%s\\", \\"mount\\": \\"%s\\"},", $1, $2, $3, $4, $5, $6} END {print "]"}' |
+      sed 's/,]/]/'
+    `).toString();
+  
+    systemInfoJson = {
+      "cpu": {
+        "used_percent": cpuUsage,
+      },
+      "memory": JSON.parse(memoryUsage),
+      "storage": JSON.parse(diskUsage),
+    }
+  
+  } catch (error) {
+    console.error('Error executing command:', error.message);
   }
-
-} catch (error) {
-  console.error('Error executing command:', error.message);
-}
-  let res = await axios.post(exaComputeBackendUrl + 'sysInfo',  systemInfoJson, {
-      headers: headers
+    let res = await axios.post(exaComputeBackendUrl + 'sysInfo',  systemInfoJson, {
+        headers: headers
+    });
+    console.log(res);
   });
-  console.log(res);
-});
+
+  }).catch(err => {
+    console.log("Device details sent to server unsuccessfully ", err);
+  });
+}).catch(err => {
+  console.log("Client Version Updated unsuccessfully ", err);
+})
 
 
 // Fetch Tasks
