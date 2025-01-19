@@ -12,7 +12,7 @@ const exaComputeToken = process.env.EXA_COMPUTE_TOKEN;
 // console.log("Getting all Env Variables ", process.env);
 console.log("Exacompute Token ", exaComputeToken);
 
-const clientMachineId = "asdasd".toString().trim();
+const clientMachineId = execSync("cat /etc/machine-id").toString().trim();
 const headers = { 
   'Authorization': `Bearer ${exaComputeToken}`,
   'clientMachineId': `${clientMachineId}`,
