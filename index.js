@@ -63,38 +63,41 @@ async function main() {
     p.outro(`${color.green('lxd is installed')}`);
     s.stop();
 
-    const value = await p.text({
-        message: 'Please enter your exa drive secret token',
-    });
-
-    p.intro('Verifying your secret token');
-    s.start('Verifying Token...');
-    try {
-        let res = await axios.post(exaComputeBackendUrl + 'verify',  {token: value}, {
-            headers: { 'Authorization': `Bearer ${value}` }
+    if (!fs.existsSync('/etc/exa.env')) {
+        const value = await p.text({
+            message: 'Please enter your exa drive secret token',
         });
+    
+        p.intro('Verifying your secret token');
+        s.start('Verifying Token...');
+        try {
+            let res = await axios.post(exaComputeBackendUrl + 'verify',  {token: value}, {
+                headers: { 'Authorization': `Bearer ${value}` }
+            });
+            s.stop();
+            p.outro('Secret token verified');
+          } catch (err) {
+            s.stop();
+            if(err.status == 403) {
+                p.outro('Invalid token');
+                return;
+            } else {
+                p.outro('Token verification falied');
+            return;
+            }
+          }
+    
+        p.intro('Setting your secret token');
+        s.start('Setting')
+    
+        execSync(`echo 'EXA_COMPUTE_TOKEN=${value}' >> /etc/exa.env`);
+        // execSync('. ~/.bashrc');
         s.stop();
-        p.outro('Secret token verified');
-      } catch (err) {
-        s.stop();
-        if(err.status == 403) {
-            p.outro('Invalid token');
-		return;
-        } else {
-            p.outro('Token verification falied');
-		return;
-        }
-      }
-
-    p.intro('Setting your secret token');
-    s.start('Setting')
-    if (fs.existsSync('/etc/exa.env')) {
-        execSync('sudo rm /etc/exa.env');
+        p.outro('Secret token has been successfully setup');
+    } else {
+        p.intro('Checking your secret token');
+        p.outro('Token already present....');
     }
-    execSync(`echo 'EXA_COMPUTE_TOKEN=${value}' >> /etc/exa.env`);
-    // execSync('. ~/.bashrc');
-    s.stop();
-    p.outro('Secret token has been successfully setup');
 
     s.start('Adding exa compute service...');
     await setTimeout(timeOut);

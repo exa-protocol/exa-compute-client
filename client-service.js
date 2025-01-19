@@ -1,22 +1,46 @@
 const cron = require('node-cron');
-const axios = require('axios');
+const fs = require('fs');
 const { execSync } = require('child_process');
+const path = require('path');
+const { default: axios } = require('axios');
+const AdmZip = require('adm-zip');
+const clientVersion = require('./version');
+
+// const exaComputeBackendUrl = 'https://exa-compute-backend.exa.show/'
+// const exaComputeToken = "process.env.EXA_COMPUTE_TOKEN";
+const exaComputeBackendUrl = 'http://localhost:3000/'
+const exaComputeToken = "35b1a3c1-881e-44ae-b6de-21e47b2f2efc";
+
+console.log("Getting all Env Variables ", process.env);
+console.log("Exacompute Token ", exaComputeToken);
+
+const machineId = execSync("cat /etc/machine-id");
+const headers = { 
+  'Authorization': `Bearer ${exaComputeToken}`,
+  machineId: machineId,
+  clientVersion: version
+}
+
+// Update client Version On the server
+await axios.post(exaComputeBackendUrl + 'machine/updateClient',  { clientVersion }, {
+  headers: headers
+});
+// Client Version Updated Successfully
 
 
-const exaComputeBackendUrl = 'https://exa-compute-backend.exa.show/'
-const exaComputeToken = process.env.EXA_COMPUTE_TOKEN;
-console.log(process.env);
-console.log(exaComputeToken);
-
-
+// Send Device Details To server
+console.log("Running lshw to get the device details");
 const devicedetailJson = JSON.parse(execSync('sudo lshw -json').toString());
-console.log(exaComputeToken);
-console.log(process.env);
-console.log(devicedetailJson);
-let res = axios.post(exaComputeBackendUrl + 'deviceDetails',  devicedetailJson, {
-    headers: { 'Authorization': `Bearer ${exaComputeToken}` }
+console.log("Fetched details successfully", devicedetailJson);
+
+await axios.post(exaComputeBackendUrl + 'deviceDetails',  devicedetailJson, {
+    headers: headers
 });
 
+console.log("Device details successfully sent to server");
+
+
+// Update SysInfo every Minutes
 cron.schedule('* * * * *', async () => {
 
 console.log("Running cron every minute");
@@ -50,9 +74,69 @@ try {
   console.error('Error executing command:', error.message);
 }
   let res = await axios.post(exaComputeBackendUrl + 'sysInfo',  systemInfoJson, {
-      headers: { 'Authorization': `Bearer ${exaComputeToken}` }
+      headers: headers
   });
   console.log(res);
 });
 
 
+// Fetch Tasks
+
+// cron.schedule('*/10 * * * * *', async () => {
+//   console.log("Running cron every minute to fetch tasks");
+  
+//   let res = await axios.get(exaComputeBackendUrl + 'tasks', {
+//       headers: headers
+//   });
+//     console.log(res.data);
+
+//     res.data.forEach(async task => {
+//       console.log("in task", task);
+//       if(task.status != "PENDING" || task.taskFileUrl == null || task.taskFileUrl == undefined) {
+//         return;
+//       }
+//       const outputFolderDir = '/var/tmp/exa-compute/' + task._id;
+//       const fileUrl = task.taskFileUrl;
+//       const fileName = fileUrl.split("/").filter(Boolean).pop();
+      
+//       // Zip output file path
+//       const outputPath = path.join(outputFolderDir, fileName);
+
+//       // Unzipped file Dockerfile path
+//       const dockerFileDirPath = path.join(outputFolderDir, fileName.replace(".zip", ""));
+//       const dockerOutPutDirPath = path.join(dockerFileDirPath, 'output');
+
+//       if (!fs.existsSync(outputFolderDir)){
+//         console.log("in here", task);
+//         fs.mkdirSync(outputFolderDir, { recursive: true });
+//       }
+
+//       // Fetch the file using Axios
+//       const response = await axios({
+//         url: fileUrl,
+//         method: "GET",
+//         responseType: "stream", // Stream the response for large files
+//       });
+
+//       // Pipe the response data to a file
+//       const writer = fs.createWriteStream(outputPath);
+//       response.data.pipe(writer);
+
+//       // Wait for the file to finish writing
+//       writer.on("finish", () => {
+//         console.log("File downloaded successfully:", outputPath);
+//         const zip = new AdmZip(outputPath);
+//         zip.extractAllTo(outputFolderDir, true);  // 'true' overwrites existing files
+//         console.log("File successfully unzipped:", outputFolderDir);
+//         const result = execSync('sudo docker --version', { encoding: 'utf-8' });
+//         console.log('docker result ' + result);
+//         // execSync('sudo docker build -t app ' + dockerFileDirPath);
+//         // execSync('sudo docker run -v ./local_output:' + dockerOutPutDirPath + ' app > output.log 2>&1');
+//       });
+
+//       writer.on("error", (err) => {
+//         console.error("Error writing file:", err);
+//       });
+
+//     });
+//   });
