@@ -7,28 +7,26 @@ const AdmZip = require('adm-zip');
 const clientVersion = require('./version');
 
 const exaComputeBackendUrl = 'https://exa-compute-backend.exa.show/'
-const exaComputeToken = "exacompute.J9FO888LWYS2QNN5ADI24X6A8GJ2WV1LPERVI35J86JW1C7THRKV6I51A2EFXML2R3VFSDEV6MP20IAY46RL8X864RPUB60OU248HADLWIMRI0UAVLEAPJV1IAGIZQDI6SZZBVMGM03A5AABE62KQD4LZ6G9H38LKHLV351QE5RA8K0OKSJU12MBHGKECG8LSGNCY2055HC3CVIO6MMLQZTHK2AP2D7UN4X50BGRJWUH90WKU18I0D5ADPC8X0TX"
-// const exaComputeBackendUrl = 'http://localhost:3000/'
-// const exaComputeToken = "35b1a3c1-881e-44ae-b6de-21e47b2f2efc";
+const exaComputeToken = process.env.EXA_COMPUTE_TOKEN;
 
-console.log("Getting all Env Variables ", process.env);
+// console.log("Getting all Env Variables ", process.env);
 console.log("Exacompute Token ", exaComputeToken);
 
-const machineId = execSync("cat /etc/machine-id");
+const clientMachineId = "asdasd".toString().trim();
 const headers = { 
   'Authorization': `Bearer ${exaComputeToken}`,
-  'machineId': `${machineId.toString().trim()}`,
+  'clientMachineId': `${clientMachineId}`,
   'clientVersion': `${clientVersion}`
 }
 
 console.log("headers ", headers);
 
 // Update client Version On the server
-axios.post(exaComputeBackendUrl + 'machine/updateClient',  { clientVersion }, {
+axios.post(exaComputeBackendUrl + 'machine/updateClient',  { clientVersion, clientMachineId }, {
   headers: headers
 }).then(response => {
   // Client Version Updated Successfully
-  console.log("Client Version Updated successfully ", response);
+  console.log("Client Version Updated successfully ", response.data);
 
   // Send Device Details To server
   console.log("Running lshw to get the device details");
@@ -38,7 +36,7 @@ axios.post(exaComputeBackendUrl + 'machine/updateClient',  { clientVersion }, {
   axios.post(exaComputeBackendUrl + 'deviceDetails',  devicedetailJson, {
       headers: headers
   }).then(response => {
-    console.log("Device details successfully sent to server ", response);
+    console.log("Device details successfully sent to server ", response.data);
     // Update SysInfo every Minutes
 cron.schedule('* * * * *', async () => {
 

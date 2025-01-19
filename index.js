@@ -70,14 +70,16 @@ async function main() {
     
         p.intro('Verifying your secret token');
         s.start('Verifying Token...');
+        const clientMachineId = execSync("cat /etc/machine-id").toString().trim();
         try {
-            let res = await axios.post(exaComputeBackendUrl + 'verify',  {token: value}, {
+            let res = await axios.post(exaComputeBackendUrl + 'verify',  { token: value, clientMachineId }, {
                 headers: { 'Authorization': `Bearer ${value}` }
             });
             s.stop();
             p.outro('Secret token verified');
           } catch (err) {
             s.stop();
+            console.log(err);
             if(err.status == 403) {
                 p.outro('Invalid token');
                 return;
