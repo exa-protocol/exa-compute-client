@@ -79,7 +79,6 @@ async function main() {
             p.outro('Secret token verified');
           } catch (err) {
             s.stop();
-            console.log(err);
             if(err.status == 403) {
                 p.outro('Invalid token');
                 return;
