@@ -91,11 +91,17 @@ async function main() {
     
         p.intro('Setting your secret token');
         s.start('Setting')
-    
-        execSync(`echo 'EXA_COMPUTE_TOKEN=${value}' >> /etc/exa.env`);
+
+        try {
+            execSync(`echo 'EXA_COMPUTE_TOKEN=${value}' >> /etc/exa.env`);
+            s.stop();
+            p.outro('Secret token has been successfully setup');
+        } catch (err) {
+            s.stop();
+            return;
+        }
         // execSync('. ~/.bashrc');
-        s.stop();
-        p.outro('Secret token has been successfully setup');
+        
     } else {
         p.intro('Checking your secret token');
         p.outro('Token already present....');

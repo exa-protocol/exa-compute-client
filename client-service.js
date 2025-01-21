@@ -66,14 +66,15 @@ cron.schedule('* * * * *', async () => {
       "memory": JSON.parse(memoryUsage),
       "storage": JSON.parse(diskUsage),
     }
+
+    let res = await axios.post(exaComputeBackendUrl + 'sysInfo',  systemInfoJson, {
+      headers: headers
+  });
+  console.log(res);
   
   } catch (error) {
     console.error('Error executing command:', error.message);
   }
-    let res = await axios.post(exaComputeBackendUrl + 'sysInfo',  systemInfoJson, {
-        headers: headers
-    });
-    console.log(res);
   });
 
   }).catch(err => {

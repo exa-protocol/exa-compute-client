@@ -7,7 +7,7 @@
     [Service]
     Type=simple
     Restart=always
-    RestartSec=1800
+    RestartSec=3
     User=root
     EnvironmentFile=/etc/exa.env
     WorkingDirectory=/usr/local/bin
