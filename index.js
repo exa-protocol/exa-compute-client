@@ -9,6 +9,8 @@ const fs = require('fs');
 const { execSync } = require('child_process');
 const { join } = require('path');
 const { default: axios } = require('axios');
+const { platform } = require('node:os');
+const clientVersion = require('./version');
 
 const timeOut = 500;
 const exaComputeServicePath = './exa-compute-client.service';
@@ -72,7 +74,7 @@ async function main() {
         s.start('Verifying Token...');
         const clientMachineId = execSync("cat /etc/machine-id").toString().trim();
         try {
-            let res = await axios.post(exaComputeBackendUrl + 'verify',  { token: value, clientMachineId }, {
+            let res = await axios.post(exaComputeBackendUrl + 'activateMachines',  { token: value, clientMachineId, clientType: "CLI", platform:  os.platform().toUpperCase(), clientversion: clientVersion }, {
                 headers: { 'Authorization': `Bearer ${value}` }
             });
             s.stop();

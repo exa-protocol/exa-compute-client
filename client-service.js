@@ -5,6 +5,7 @@ const path = require('path');
 const { default: axios } = require('axios');
 const AdmZip = require('adm-zip');
 const clientVersion = require('./version');
+const os = require('os');
 
 const exaComputeBackendUrl = 'https://exa-compute-backend.exa.show/'
 const exaComputeToken = process.env.EXA_COMPUTE_TOKEN;
@@ -16,7 +17,9 @@ const clientMachineId = execSync("cat /etc/machine-id").toString().trim();
 const headers = { 
   'Authorization': `Bearer ${exaComputeToken}`,
   'clientMachineId': `${clientMachineId}`,
-  'clientVersion': `${clientVersion}`
+  'clientVersion': `${clientVersion}`,
+  'clientType': 'CLI',
+  'platform':  os.platform().toUpperCase()
 }
 
 console.log("headers ", headers);
@@ -33,7 +36,7 @@ axios.post(exaComputeBackendUrl + 'machine/updateClient',  { clientVersion, clie
   const devicedetailJson = JSON.parse(execSync('sudo lshw -json').toString());
   console.log("Fetched details successfully", devicedetailJson);
 
-  axios.post(exaComputeBackendUrl + 'deviceDetails',  devicedetailJson, {
+  axios.post(exaComputeBackendUrl + 'addDeviceDetails',  devicedetailJson, {
       headers: headers
   }).then(response => {
     console.log("Device details successfully sent to server ", response.data);
@@ -67,7 +70,7 @@ cron.schedule('* * * * *', async () => {
       "storage": JSON.parse(diskUsage),
     }
 
-    let res = await axios.post(exaComputeBackendUrl + 'sysInfo',  systemInfoJson, {
+    let res = await axios.post(exaComputeBackendUrl + 'machinePings',  systemInfoJson, {
       headers: headers
   });
   console.log(res);
